@@ -150,7 +150,6 @@ TEXTS = [
 INPUT_SCALER = 100
 ip_nums = f"({'|'.join(str(x) for x in range(1, 256))})"
 PATTERNS = [
-    "ab" * INPUT_SCALER,
     (
         "'ab' big + c",
         "ab" * INPUT_SCALER + "c",
@@ -287,7 +286,7 @@ def full_normal_run(engines, texts, patterns, prefix: str, runs=DEFAULT_RUNS):
         for pattern_name, pattern in patterns:
             if pattern_name.split()[0] != text_name.split()[0]:
                 continue
-            # print(f"Pattern {pattern_name:8}")
+            print(f"Pattern {pattern_name:8}")
             for engine_name, builder, runner in engines:
                 build_begin_at = time.monotonic()
                 eng = builder(pattern)
@@ -303,19 +302,16 @@ def full_normal_run(engines, texts, patterns, prefix: str, runs=DEFAULT_RUNS):
                         break
                     run_duration = time.monotonic() - run_begin_at
                     cur_runs.append(min(run_duration, ERROR_TIME))
-                # with duration(engine=engine_name, init=build_duration):
-                #     try:
-                #         runner(eng, text)
-                #     except Exception as err:
-                #         print(
-                #             f"Engine: {engine_name:10} failed with error {err} "
-                #             + "!" * 10
-                #         )
                 run_times[engine_name].append(median(cur_runs))
+                print(
+                    f"Engine {engine_name:18} "
+                    f"init: {build_duration:.6f} "
+                    f"run: {median(cur_runs):.6f}s"
+                )
             print("-" * 30)
 
-        # print("-" * 80)
-        # print("")
+        print("-" * 80)
+        print("")
 
     if SAVE_INIT:
         for engine_name, data in init_times.items():
@@ -336,7 +332,6 @@ def full_normal_run(engines, texts, patterns, prefix: str, runs=DEFAULT_RUNS):
                 label=engine_name,
                 **_get_linestyle(engine_name),
             )
-        # plt.ticklabel_format(style="plain")
         plt.legend()
         plt.xlabel("Перцентиль")
         plt.ylabel("Время работы, с")
