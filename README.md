@@ -1,6 +1,8 @@
 # regexp-performance
 Benchmark of different python regexp libraries on some edge cases
 
+![Total for high percentiles](./alex-out/run_times_match_end.svg)
+
 ## How to run?
 
 - Environment variable `RUNS` specifies number of runs for each call.
