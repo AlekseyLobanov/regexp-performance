@@ -367,11 +367,26 @@ def main():
         engines = {"re2", "regex", "flpc", "pcre2+JIT", "pcre2"}
         if use_re:
             engines.add("re")
+        lens = list(lens)
         plot_and_measure_regexp_on_single(
             f"pydantic-old-{use_re}",
             [x for x in ENGINES if x[0] in engines],
             pattern=PATTERNS_KEYED["pydantic old"],
             text_builder=lambda x: "0" + " " * (x - 1),
+            lens=lens,
+        )
+        plot_and_measure_regexp_on_single(
+            f"the-simplest-{use_re}",
+            [x for x in ENGINES if x[0] in engines],
+            pattern=".*ab",
+            text_builder=lambda x: "a" * x,
+            lens=lens,
+        )
+        plot_and_measure_regexp_on_single(
+            f"the-simplest-x2-{use_re}",
+            [x for x in ENGINES if x[0] in engines],
+            pattern="(.*a){2}b",
+            text_builder=lambda x: "a" * x,
             lens=lens,
         )
     plot_and_measure_regexp_on_single(
