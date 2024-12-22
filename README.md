@@ -8,23 +8,33 @@ Benchmark of different python regexp libraries on some edge cases
 - Environment variable `RUNS` specifies number of runs for each call.
   - Recommended value is 11.
 - Some libraries requires extra system libraries to be installed.
-- I recommend podman/docker
+- I recommend Podman/Docker
+  - [Podman](https://podman.io/) allows to run container in rootless mode with no effort.
+
+### Without building
+Recommended variant to "just run on my machine"
+
+```bash
+docker run --rm  -v $(pwd)/docker-out:/app/graphs -e RUNS=11 ghcr.io/alekseylobanov/regexp-performance:latest python measure_performance.py
+```
+
+Result images will be placed in `./docker-out` directory.
 
 
 ### Podman/Docker
-[Podman](https://podman.io/) allows to run container in rootless mode with no effort.
-Docker commands will be similar.
 
 ```bash
-podman build -t re-benchmark .
-mkdir docker-out
-podman run --rm  -v $(pwd)/docker-out:/app/graphs -e RUNS=11 re-benchmark  python measure_performance.py
+docker build -t re-benchmark .
+docker run --rm  -v $(pwd)/docker-out:/app/graphs -e RUNS=11 re-benchmark  python measure_performance.py
 ```
 
-Recommended variant because no dev libraries is needed.
+Recommended variant if local building is preferred.
+
+Result images will be placed in `./docker-out` directory.
 
 
 ### Pip/venv
+**NB:** Additional libraries may be required.
 
 ```bash
 python3 -m venv venv
