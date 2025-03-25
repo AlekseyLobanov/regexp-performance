@@ -11,5 +11,5 @@ COPY requirements.txt .
 RUN pip install -U pip && pip install -r requirements.txt
 
 COPY war-and-peace.txt.gz .
-COPY pitayasmoothie-dark.mplstyle .
+COPY *.mplstyle .
 COPY measure_performance.py .
