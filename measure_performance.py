@@ -15,7 +15,14 @@ import re2  # using Facebook's RE2
 import regex
 from numpy import percentile
 
-plt.style.use("./pitayasmoothie-dark.mplstyle")
+STYLES = {
+    "pitayasmoothie-dark": "./pitayasmoothie-dark.mplstyle",
+    "pitayasmoothie-light": "./pitayasmoothie-light.mplstyle",
+    "sd-light": "./sd-light.mplstyle",
+}
+SINGLE_STYLE = os.getenv("SINGLE_STYLE")
+if SINGLE_STYLE:
+    STYLES = {SINGLE_STYLE: STYLES[SINGLE_STYLE]}
 PNG_DPI = 400
 
 IMG_PATH = "./graphs"
@@ -253,14 +260,25 @@ def plot_and_measure_regexp_on_single(
             engine_times.append(median(cur_run_times))
         data[engine_name] = engine_times
 
-    for eng_name in (x[0] for x in engines):
-        plt.plot(all_lens, data[eng_name], label=eng_name, **_get_linestyle(eng_name))
-    plt.legend()
-    plt.xlabel("Размер текста")
-    plt.ylabel("Время, с")
-    plt.savefig(os.path.join(IMG_PATH, f"{title}.png"), dpi=PNG_DPI)
-    plt.savefig(os.path.join(IMG_PATH, f"{title}.svg"))
-    plt.clf()
+    for style_name, style_path in STYLES.items():
+        for use_labels in [True, False]:
+            plt.style.use(style_path)
+            for eng_name in (x[0] for x in engines):
+                plt.plot(
+                    all_lens, data[eng_name], label=eng_name, **_get_linestyle(eng_name)
+                )
+            plt.legend()
+            if use_labels:
+                plt.xlabel("Размер текста")
+                plt.ylabel("Время, с")
+            plt.savefig(
+                os.path.join(IMG_PATH, f"{style_name}-{use_labels}_{title}.png"),
+                dpi=PNG_DPI,
+            )
+            plt.savefig(
+                os.path.join(IMG_PATH, f"{style_name}-{use_labels}_{title}.svg")
+            )
+            plt.clf()
 
 
 @contextmanager
