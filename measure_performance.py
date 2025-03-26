@@ -23,7 +23,7 @@ STYLES = {
 SINGLE_STYLE = os.getenv("SINGLE_STYLE")
 if SINGLE_STYLE:
     STYLES = {SINGLE_STYLE: STYLES[SINGLE_STYLE]}
-PNG_DPI = 400
+PNG_DPI = 500
 
 IMG_PATH = "./graphs"
 os.makedirs(IMG_PATH, exist_ok=True)
@@ -32,6 +32,12 @@ DEFAULT_RUNS = int(os.getenv("RUNS", 3))
 SAVE_INIT = False  # not significant enough
 
 ERROR_TIME = 0.5
+PERCENTILES_TO_USE = [
+    ("best", 10, 26),
+    ("good", 25, 51),
+    ("end", 70, 92),
+    ("low-half", 9, 53),
+]
 
 war_and_peace = GzipFile("./war-and-peace.txt.gz").read().decode()
 
@@ -341,23 +347,35 @@ def full_normal_run(engines, texts, patterns, prefix: str, runs=DEFAULT_RUNS):
         plt.savefig(os.path.join(IMG_PATH, "init_times.svg"))
         plt.clf()
 
-    for part, begin, end in [("best", 10, 26), ("good", 25, 51), ("end", 70, 91)]:
-        for engine_name, data in run_times.items():
-            data = [(p, percentile(data, p)) for p in range(begin, end)]
-            plt.plot(
-                [x[0] for x in data],
-                [x[1] for x in data],
-                label=engine_name,
-                **_get_linestyle(engine_name),
-            )
-        plt.legend()
-        plt.xlabel("Перцентиль")
-        plt.ylabel("Время работы, с")
-        plt.savefig(
-            os.path.join(IMG_PATH, f"run_times_{prefix}_{part}.png"), dpi=PNG_DPI
-        )
-        plt.savefig(os.path.join(IMG_PATH, f"run_times_{prefix}_{part}.svg"))
-        plt.clf()
+    for style_name, style_path in STYLES.items():
+        for use_labels in [True, False]:
+            for part, begin, end in PERCENTILES_TO_USE:
+                for engine_name, data in run_times.items():
+                    data = [(p, percentile(data, p)) for p in range(begin, end)]
+                    plt.plot(
+                        [x[0] for x in data],
+                        [x[1] for x in data],
+                        label=engine_name,
+                        **_get_linestyle(engine_name),
+                    )
+                plt.legend()
+                if use_labels:
+                    plt.xlabel("Перцентиль")
+                    plt.ylabel("Время работы, с")
+                plt.savefig(
+                    os.path.join(
+                        IMG_PATH,
+                        f"{style_name}-{use_labels}_run_times_{prefix}_{part}.png",
+                    ),
+                    dpi=PNG_DPI,
+                )
+                plt.savefig(
+                    os.path.join(
+                        IMG_PATH,
+                        f"{style_name}-{use_labels}_run_times_{prefix}_{part}.svg",
+                    )
+                )
+                plt.clf()
 
 
 def main():
